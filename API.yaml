@@ -1,0 +1,271 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: BugFix.es API
+  description: BugFix.es API
+  termsOfService: https://docs.bugfix.es/termsOfService
+  contact:
+    name: API Support
+    email: api@bugfix.es
+    url: https://bugfix.es/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+externalDocs:
+    description: BugFix.es API Docs
+    url: https://docs.bugfix.es
+servers:
+  - url: https://{subdomain}.bugfix.es/{version}
+    description: BugFix.es API Live
+    variables:
+      subdomain:
+        default: api
+      version:
+        enum:
+          - v1
+        default: v1
+  - url: http://docker.devel/{version}
+    description: BugFix.es API Dev
+    variables:
+      version:
+        enum:
+          - v1
+        default: v1
+paths:
+  /bug:
+    post:
+      summary: Insert Bug
+      operationId: addBug
+      tags:
+        - Bug
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertBugExplicit"
+      responses:
+        default:
+          description: Inserted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    get:
+      summary: Get All Bugs
+      operationId: getBugs
+      tags:
+        - Bug
+      responses:
+        200:
+          description: Get All Bugs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bugs"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+  /bug/{bugId}:
+    get:
+      summary: Get Specific Bug
+      tags:
+        - Bug
+      operationId: getBug
+      parameters:
+        - in: path
+          name: bugId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Return Bug
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bug"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+  /log:
+    post:
+      summary: "Insert Bug at LogLevel: LOG"
+      operationId: addBugLog
+      tags:
+        - Log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertBugImplicit"
+      responses:
+        default:
+          description: Inserted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    get:
+      summary: "List All Bugs at LogLevel: LOG"
+      operationId: listBugsLog
+      tags:
+        - Log
+      responses:
+        200:
+          description: "Get List of Bugs at LogLevel: LOG"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bugs"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+  /info:
+    post:
+      summary: "Insert Bug at LogLevel: INFO"
+      operationId: addBugInfo
+      tags:
+        - Info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InsertBugImplicit"
+      responses:
+        default:
+          description: Inserted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+    get:
+      summary: 'List All Bugs at LogLevel: INFO'
+      operationId: listBugsInfo
+      tags:
+        - Info
+      responses:
+        200:
+          description: 'Get List of Bugs at LogLevel: INFO'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bugs'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+  /error:
+       post:
+         summary: "Insert Bug at LogLevel: ERROR"
+         operationId: addBugError
+         tags:
+           - Error
+         requestBody:
+           required: true
+           content:
+             application/json:
+               schema:
+                 $ref: "#/components/schemas/InsertBugImplicit"
+         responses:
+           default:
+             description: Inserted
+             content:
+               application/json:
+                 schema:
+                   $ref: "#/components/schemas/ApiResponse"
+       get:
+         summary: 'List All Bugs at LogLevel: ERROR'
+         operationId: listBugsError
+         tags:
+           - Error
+         responses:
+           200:
+             description: 'Get List of Bugs at LogLevel: ERROR'
+             content:
+               application/json:
+                 schema:
+                   $ref: '#/components/schemas/Bugs'
+           default:
+             description: unexpected error
+             content:
+               application/json:
+                 schema:
+                   $ref: "#/components/schemas/ApiResponse"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+  schemas:
+    Bugs:
+      type: array
+      items:
+        $ref: "#/components/schemas/Bug"
+    InsertBugExplicit:
+      type: object
+      required:
+        - message
+        - loglevel
+      properties:
+        loglevel:
+          type: string
+        message:
+          type: string
+        application:
+          type: string
+        version:
+          type: string
+          pattern: '^\d{1,3}.\d{1,3}.\d{1,3}$'
+    InsertBugImplicit:
+      type: object
+      required:
+        - message
+      properties:
+        application:
+          type: string
+        version:
+          type: string
+          pattern: '^\d{1,3}.\d{1,3}.\d{1,3}$'
+        message:
+          type: string
+    Bug:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        application:
+          type: string
+        version:
+          type: string
+          pattern: '^\d{1,3}.\d{1,3}.\d{1,3}$'
+        message:
+          type: string
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+        type:
+          type: string
+        message:
+          type: string
+security:
+  - ApiKeyAuth: []

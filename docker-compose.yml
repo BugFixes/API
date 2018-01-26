@@ -1,0 +1,22 @@
+version: '3'
+services:
+    elastic:
+        image: elasticsearch:5
+    node:
+        image: node:9
+        working_dir: /home/node/app
+        environment:
+            - PORT=${NODE_PORT}
+            - HOST=${NODE_HOST}
+            - BUGFIXES_KEY=${BUGFIXES_KEY}
+            - BUGFIXES_SECRET=${BUGFIXES_SECRET}
+            - MONGO_PATH=${MONGO_PATH}
+            - ELASTIC_HOST=${ELASTIC_HOST}
+            - ACCOUNT_SERVICE=${ACCOUNT_SERVICE}
+        links:
+            - elastic
+        ports:
+            - 80:80
+        volumes:
+            - ./:/home/node/app
+        command: 'yarn start'
